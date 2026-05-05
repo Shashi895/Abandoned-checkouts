@@ -29,6 +29,12 @@ const checkoutSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    address: {
+        type: String
+    },
+    pincode: {
+        type: String
+    },
     products: [
         {
             title: String,
@@ -44,12 +50,9 @@ const checkoutSchema = new mongoose.Schema({
     created_at: {
         type: Date,
         default: Date.now
-    },
-    sent_to_crm: {
-        type: Boolean,
-        default: false
     }
 }, { timestamps: true });
+
 
 const Checkout = mongoose.model('Checkout', checkoutSchema);
 export default Checkout;
