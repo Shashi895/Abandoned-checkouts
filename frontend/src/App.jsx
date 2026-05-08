@@ -14,7 +14,10 @@ import {
   MapPin,
   Calendar,
   Download,
-  ArrowRight
+  ArrowRight,
+  Phone,
+  Copy,
+  Check
 } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
@@ -31,6 +34,7 @@ function App() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [copiedId, setCopiedId] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -67,6 +71,12 @@ function App() {
       case 'converted': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       default: return 'bg-slate-50 text-slate-600 border-slate-100';
     }
+  };
+
+  const copyToClipboard = (text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const openWhatsApp = (phone, name) => {
@@ -219,7 +229,15 @@ function App() {
                     <td className="px-8 py-5">
                       <div className="font-bold text-slate-900 text-sm leading-tight">{checkout.name}</div>
                       <div className="text-[11px] text-slate-400 font-medium mt-0.5">{checkout.email}</div>
-                      <div className="text-blue-600 font-bold text-[11px] mt-0.5 tracking-wide">{checkout.phone}</div>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <a href={`tel:${checkout.phone}`} className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-100 text-blue-700 font-bold text-[11px] hover:bg-blue-100 transition-colors">
+                          <Phone size={10} />
+                          {checkout.phone}
+                        </a>
+                        <button onClick={() => copyToClipboard(checkout.phone, checkout._id)} className="p-1 text-slate-300 hover:text-blue-500 transition-colors">
+                          {copiedId === checkout._id ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
+                        </button>
+                      </div>
                       {checkout.products && checkout.products.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1.5">
                           {checkout.products.map((prod, idx) => (<span key={idx} className="text-[9px] bg-slate-50 text-slate-500 px-2.5 py-1 rounded-lg font-semibold border border-slate-100">{prod.title} ×{prod.quantity}</span>))}
@@ -264,19 +282,29 @@ function App() {
               ))
             ) : checkouts.map((checkout, index) => (
               <div key={checkout._id} className="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-3 relative">
-                <div className="absolute top-3 -left-2 w-7 h-7 bg-blue-600 text-white text-[10px] font-black flex items-center justify-center rounded-lg shadow-lg shadow-blue-100 border-2 border-white">
-                  {totalItems - ((page - 1) * 30 + index)}
-                </div>
                 <div className="flex justify-between items-start gap-3">
-                   <div className="flex-1">
-                     <h4 className="font-bold text-slate-900 text-[15px] leading-tight">{checkout.name}</h4>
-                     <div className="flex items-center gap-2 mt-1">
-                        <span className="text-blue-600 font-bold text-[12px] tracking-wide">{checkout.phone}</span>
-                        <span className="text-slate-300 text-[10px]">|</span>
-                        <span className="text-[10px] text-slate-400 font-medium truncate max-w-[120px]">{checkout.email}</span>
-                     </div>
+                   <div className="flex items-start gap-3 flex-1">
+                      <div className="w-8 h-8 shrink-0 bg-blue-600 text-white text-[10px] font-black flex items-center justify-center rounded-lg shadow-lg shadow-blue-100 border-2 border-white mt-0.5">
+                        {totalItems - ((page - 1) * 30 + index)}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-slate-900 text-[16px] leading-tight">{checkout.name}</h4>
+                        <div className="flex items-center mt-2.5">
+                          <a href={`tel:${checkout.phone}`} className="flex items-center gap-2 bg-blue-600 px-4 py-2 rounded-l-xl text-white font-bold text-[14px] hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-100">
+                            <Phone size={13} strokeWidth={3} />
+                            {checkout.phone}
+                          </a>
+                          <button onClick={() => copyToClipboard(checkout.phone, checkout._id)} className="h-[37px] px-3 flex items-center justify-center bg-blue-50 border-y border-r border-blue-100 rounded-r-xl text-blue-600 active:bg-blue-100 transition-all">
+                            {copiedId === checkout._id ? <Check size={14} className="text-emerald-500" strokeWidth={3} /> : <Copy size={14} />}
+                          </button>
+                        </div>
+                        <div className="text-[11px] text-slate-400 font-medium mt-2.5 flex items-center gap-1.5 opacity-80">
+                          <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+                          {checkout.email}
+                        </div>
+                      </div>
                    </div>
-                   <span className={`px-2 py-0.5 rounded-full text-[8px] font-black border uppercase tracking-wider ${getStatusColor(checkout.status)}`}>{checkout.status}</span>
+                   <span className={`px-2 py-0.5 rounded-full text-[8px] font-black border uppercase tracking-wider shrink-0 ${getStatusColor(checkout.status)}`}>{checkout.status}</span>
                 </div>
                 
                 <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100/80">
