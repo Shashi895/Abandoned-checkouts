@@ -21,3 +21,11 @@ Thumbs.db
 
 # coverage
 coverage/
+# whatsapp-web.js session
+backend/.wwebjs_auth/
+
+# node modules
+node_modules/
+
+# env
+.env

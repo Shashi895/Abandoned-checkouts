@@ -12,6 +12,10 @@ const PORT = process.env.PORT || 5000;
 // Connect to Database
 connectDB();
 
+// Initialize WhatsApp Service
+import whatsappService from './services/whatsappService.js';
+whatsappService.initialize();
+
 app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));

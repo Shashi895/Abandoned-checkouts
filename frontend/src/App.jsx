@@ -69,10 +69,10 @@ function App() {
     }
   };
 
-  const openWhatsApp = (phone, name, url) => {
+  const openWhatsApp = (phone, name) => {
     if (!phone) return alert('Phone number not available');
     const cleanPhone = phone.replace(/\D/g, '');
-    const message = `Hello ${name}, we noticed you left some items in your cart. You can complete your purchase here: ${url}`;
+    const message = `Hi ${name} ji`;
     const waUrl = `https://wa.me/${cleanPhone.startsWith('91') ? cleanPhone : '91'+cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank');
   };
@@ -196,6 +196,7 @@ function App() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100">
+                  <th className="px-6 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] w-12">S.No</th>
                   <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Lead Profile</th>
                   <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Logistics</th>
                   <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Valuation</th>
@@ -206,10 +207,15 @@ function App() {
               <tbody className="divide-y divide-slate-50">
                 {loading ? (
                    Array(10).fill(0).map((_, i) => (
-                    <tr key={i} className="animate-pulse"><td colSpan="5" className="px-8 py-6"><div className="h-12 bg-slate-50 rounded-xl w-full"></div></td></tr>
+                    <tr key={i} className="animate-pulse"><td colSpan="6" className="px-8 py-6"><div className="h-12 bg-slate-50 rounded-xl w-full"></div></td></tr>
                   ))
-                ) : checkouts.map((checkout) => (
+                ) : checkouts.map((checkout, index) => (
                   <tr key={checkout._id} className="hover:bg-blue-50/20 transition-colors group">
+                    <td className="px-6 py-5">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200">
+                        <span className="text-[11px] font-black text-slate-900">{totalItems - ((page - 1) * 30 + index)}</span>
+                      </div>
+                    </td>
                     <td className="px-8 py-5">
                       <div className="font-bold text-slate-900 text-sm leading-tight">{checkout.name}</div>
                       <div className="text-[11px] text-slate-400 font-medium mt-0.5">{checkout.email}</div>
@@ -221,11 +227,16 @@ function App() {
                       )}
                     </td>
                     <td className="px-8 py-5">
-                      <div className="flex items-start gap-3 max-w-[260px]">
+                      <div className="flex items-start gap-3">
                         <div className="p-2 bg-slate-50 rounded-lg text-slate-300 group-hover:text-blue-400 transition-colors shrink-0"><MapPin size={14} /></div>
                         <div>
-                          <div className="text-[11px] font-medium text-slate-600 line-clamp-1 italic">{checkout.address || 'Address missing'}</div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase mt-1.5 tracking-wider">Zip: {checkout.pincode || '-----'} • {format(new Date(checkout.created_at), 'MMM dd, yyyy • HH:mm')}</div>
+                          <div className="text-[11px] font-medium text-slate-700 leading-relaxed">{checkout.address || 'Address missing'}</div>
+                          <div className="text-[11px] font-black text-slate-950 mt-2 flex items-center gap-2 whitespace-nowrap">
+                            <Clock size={12} className="text-blue-600" />
+                            {format(new Date(checkout.created_at), 'MMM dd, yyyy • HH:mm')}
+                            <span className="text-slate-200 ml-1">|</span>
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest ml-1">Zip: {checkout.pincode || '-----'}</span>
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -233,7 +244,10 @@ function App() {
                     <td className="px-8 py-5 text-center"><span className={`px-3 py-1 rounded-lg text-[9px] font-bold border uppercase tracking-wider ${getStatusColor(checkout.status)}`}>{checkout.status}</span></td>
                     <td className="px-8 py-5">
                       <div className="flex items-center justify-end gap-3">
-                        <button onClick={() => openWhatsApp(checkout.phone, checkout.name, checkout.checkout_url)} className="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition-all"><MessageCircle size={16} strokeWidth={2.5} /></button>
+                        <button onClick={() => openWhatsApp(checkout.phone, checkout.name)} className="p-3 bg-[#25D366] text-white rounded-2xl shadow-lg shadow-emerald-100 hover:bg-[#128C7E] active:scale-95 transition-all flex items-center gap-2">
+                          <MessageCircle size={16} strokeWidth={2.5} />
+                          <span className="text-[10px] font-bold uppercase tracking-wider">WhatsApp</span>
+                        </button>
                         <a href={checkout.checkout_url} target="_blank" rel="noopener noreferrer" className="p-3 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-100 hover:bg-blue-700 active:scale-95 transition-all"><ExternalLink size={16} strokeWidth={2.5} /></a>
                       </div>
                     </td>
@@ -243,28 +257,59 @@ function App() {
             </table>
           </div>
 
-          {/* Mobile Version Cards */}
           <div className="lg:hidden flex flex-col gap-4">
             {loading ? (
                Array(5).fill(0).map((_, i) => (
                 <div key={i} className="bg-white p-5 rounded-3xl border border-slate-200/60 animate-pulse h-48"></div>
               ))
-            ) : checkouts.map((checkout) => (
-              <div key={checkout._id} className="bg-white p-5 rounded-3xl border border-slate-200/60 shadow-sm flex flex-col gap-4 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600"></div>
-                <div className="flex justify-between items-start">
-                   <div className="flex-1"><h4 className="font-bold text-slate-900 text-base leading-tight">{checkout.name}</h4><p className="text-[11px] text-slate-400 font-medium mt-0.5">{checkout.email}</p><p className="text-blue-600 font-bold text-[13px] mt-1 tracking-wide">{checkout.phone}</p></div>
-                   <div className={`px-2.5 py-1 rounded-lg text-[9px] font-bold border uppercase tracking-wider ${getStatusColor(checkout.status)}`}>{checkout.status}</div>
+            ) : checkouts.map((checkout, index) => (
+              <div key={checkout._id} className="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-3 relative">
+                <div className="absolute top-3 -left-2 w-7 h-7 bg-blue-600 text-white text-[10px] font-black flex items-center justify-center rounded-lg shadow-lg shadow-blue-100 border-2 border-white">
+                  {totalItems - ((page - 1) * 30 + index)}
                 </div>
-                <div className="flex flex-col gap-3">
-                   <div className="flex items-start gap-3 bg-slate-50/80 p-3 rounded-2xl border border-slate-100"><MapPin size={15} className="text-slate-300 mt-0.5 shrink-0" /><div className="overflow-hidden"><p className="text-[11px] font-medium text-slate-600 italic line-clamp-1">{checkout.address || 'Address missing'}</p><p className="text-[9px] font-bold text-slate-400 uppercase mt-1">Zip: {checkout.pincode || '-----'}</p></div></div>
-                   {checkout.products && checkout.products.length > 0 && (<div className="flex flex-wrap gap-1.5">{checkout.products.map((prod, idx) => (<span key={idx} className="text-[9px] bg-slate-50 text-slate-500 px-2.5 py-1 rounded-lg font-semibold border border-slate-100">{prod.title} ×{prod.quantity}</span>))}</div>)}
+                <div className="flex justify-between items-start gap-3">
+                   <div className="flex-1">
+                     <h4 className="font-bold text-slate-900 text-[15px] leading-tight">{checkout.name}</h4>
+                     <div className="flex items-center gap-2 mt-1">
+                        <span className="text-blue-600 font-bold text-[12px] tracking-wide">{checkout.phone}</span>
+                        <span className="text-slate-300 text-[10px]">|</span>
+                        <span className="text-[10px] text-slate-400 font-medium truncate max-w-[120px]">{checkout.email}</span>
+                     </div>
+                   </div>
+                   <span className={`px-2 py-0.5 rounded-full text-[8px] font-black border uppercase tracking-wider ${getStatusColor(checkout.status)}`}>{checkout.status}</span>
                 </div>
-                <div className="flex items-center justify-between mt-1 pt-4 border-t border-slate-100">
-                   <div><p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">₹{parseFloat(checkout.amount).toLocaleString('en-IN')}</p><p className="text-[10px] text-slate-400 font-medium mt-0.5">{format(new Date(checkout.created_at), 'MMM dd, HH:mm')}</p></div>
-                   <div className="flex gap-3">
-                      <button onClick={() => openWhatsApp(checkout.phone, checkout.name, checkout.checkout_url)} className="flex items-center justify-center w-12 h-12 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-100"><MessageCircle size={20} strokeWidth={2.5} /></button>
-                      <a href={checkout.checkout_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-100"><ExternalLink size={20} strokeWidth={2.5} /></a>
+                
+                <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100/80">
+                   <div className="flex items-start gap-2">
+                      <MapPin size={14} className="text-slate-400 mt-0.5 shrink-0" />
+                      <p className="text-[11px] font-medium text-slate-600 line-clamp-2 leading-relaxed">
+                        {checkout.address || 'Address missing'} <span className="text-slate-400 font-bold ml-1 uppercase text-[9px]">({checkout.pincode || '-----'})</span>
+                      </p>
+                   </div>
+                   {checkout.products && checkout.products.length > 0 && (
+                     <div className="mt-2 flex flex-wrap gap-1">
+                       {checkout.products.map((prod, idx) => (
+                         <span key={idx} className="text-[9px] bg-white text-slate-500 px-2 py-0.5 rounded-md font-bold border border-slate-100">{prod.title} ×{prod.quantity}</span>
+                       ))}
+                     </div>
+                   )}
+                </div>
+
+                <div className="flex items-center justify-between mt-1">
+                   <div className="flex flex-col">
+                     <span className="text-xs text-slate-900 font-black tracking-tight">₹{parseFloat(checkout.amount).toLocaleString('en-IN')}</span>
+                     <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold mt-0.5">
+                        <Clock size={10} className="text-blue-500" />
+                        {format(new Date(checkout.created_at), 'MMM dd, HH:mm')}
+                     </div>
+                   </div>
+                   <div className="flex gap-2">
+                      <button onClick={() => openWhatsApp(checkout.phone, checkout.name)} className="w-10 h-10 bg-[#25D366] text-white rounded-xl shadow-lg shadow-emerald-50 flex items-center justify-center transition-transform active:scale-90">
+                         <MessageCircle size={18} strokeWidth={2.5} />
+                      </button>
+                      <a href={checkout.checkout_url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-50 flex items-center justify-center transition-transform active:scale-90">
+                         <ExternalLink size={18} strokeWidth={2.5} />
+                      </a>
                    </div>
                 </div>
               </div>
@@ -274,17 +319,17 @@ function App() {
 
         {/* Improved Pagination Section */}
         {totalPages > 1 && (
-          <div className="bg-white p-4 md:p-6 rounded-[2.5rem] shadow-sm border border-slate-200/60 flex flex-col md:flex-row items-center justify-center gap-6">
+          <div className="bg-white p-4 md:p-6 rounded-3xl md:rounded-[2.5rem] shadow-sm border border-slate-200/60 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
             <div className="flex items-center gap-2 md:gap-4">
-              <button disabled={page === 1 || loading} onClick={() => { setPage(p => p - 1); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm">
-                <ChevronLeft size={20} strokeWidth={3} />
+              <button disabled={page === 1 || loading} onClick={() => { setPage(p => p - 1); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm">
+                <ChevronLeft size={18} md:size={20} strokeWidth={3} />
               </button>
-              <div className="flex items-center gap-2">{renderPageNumbers()}</div>
-              <button disabled={page === totalPages || loading} onClick={() => { setPage(p => p + 1); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm">
-                <ChevronRight size={20} strokeWidth={3} />
+              <div className="flex items-center gap-1.5 md:gap-2">{renderPageNumbers()}</div>
+              <button disabled={page === totalPages || loading} onClick={() => { setPage(p => p + 1); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm">
+                <ChevronRight size={18} md:size={20} strokeWidth={3} />
               </button>
             </div>
-            <div className="md:absolute md:right-12 text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Page {page} of {totalPages}</div>
+            <div className="md:absolute md:right-12 text-[9px] md:text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Page {page} of {totalPages}</div>
           </div>
         )}
       </main>
