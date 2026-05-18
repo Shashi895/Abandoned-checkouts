@@ -4,11 +4,12 @@ const checkoutSchema = new mongoose.Schema({
     checkout_id: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        default: () => 'manual_' + new mongoose.Types.ObjectId()
     },
     name: {
         type: String,
-        required: true
+        default: 'Unknown'
     },
     email: {
         type: String,
@@ -19,15 +20,15 @@ const checkoutSchema = new mongoose.Schema({
     },
     amount: {
         type: Number,
-        required: true
+        default: 0
     },
     currency: {
         type: String,
-        default: 'USD'
+        default: 'INR'
     },
     checkout_url: {
         type: String,
-        required: true
+        default: ''
     },
     address: {
         type: String

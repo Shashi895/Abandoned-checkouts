@@ -1,4 +1,3 @@
-import whatsappService from '../services/whatsappService.js';
 import Checkout from '../models/Checkout.js';
 
 export const createNewLead = async (req, res) => {
@@ -25,14 +24,8 @@ export const createNewLead = async (req, res) => {
 
         await newLead.save();
 
-        // Send automatic WhatsApp message
-        const message = `Hi ${name} 👋\nThanks for your interest in ${product || 'our product'}.\nOur team will contact you shortly.`;
-        
-        // Trigger WhatsApp (Async, don't wait for it to respond to the lead API)
-        whatsappService.sendMessage(phone, message);
-
         res.status(201).json({
-            message: 'Lead created successfully and WhatsApp notification triggered.',
+            message: 'Lead created successfully.',
             data: newLead
         });
 
